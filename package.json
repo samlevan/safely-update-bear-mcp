@@ -1,0 +1,31 @@
+{
+  "name": "safely-update-bear-mcp",
+  "version": "1.0.0",
+  "description": "MCP server for safely updating Bear notes with preview and approval workflow",
+  "main": "src/mcp_server.py",
+  "type": "mcp-server",
+  "mcp": {
+    "name": "Bear Safe Update",
+    "description": "Safely update Bear notes with preview and approval",
+    "version": "1.0.0",
+    "transport": "stdio",
+    "command": "python",
+    "args": ["src/mcp_server.py"],
+    "tools": [
+      {
+        "name": "bear_preview_update",
+        "description": "Generate a preview URL for reviewing proposed changes. ALWAYS share the returned preview_url with the user for review - do not just mention the preview ID"
+      },
+      {
+        "name": "bear_get_status",
+        "description": "Check the status of a preview operation"
+      },
+      {
+        "name": "bear_rollback_change",
+        "description": "Undo a previously applied change"
+      }
+    ]
+  },
+  "author": "",
+  "license": "MIT"
+}

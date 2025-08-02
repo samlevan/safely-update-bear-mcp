@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Change History - Bear MCP</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .header h1 {
+            font-size: 28px;
+        }
+        
+        .header .stats {
+            text-align: right;
+        }
+        
+        .header .stats .count {
+            font-size: 32px;
+            font-weight: bold;
+        }
+        
+        .header .stats .label {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+        
+        .nav-links {
+            padding: 15px 30px;
+            background: #f8f9fa;
+            border-bottom: 1px solid #dee2e6;
+        }
+        
+        .nav-links a {
+            color: #667eea;
+            text-decoration: none;
+            margin-right: 20px;
+            font-weight: 500;
+        }
+        
+        .nav-links a:hover {
+            text-decoration: underline;
+        }
+        
+        .content {
+            padding: 30px;
+        }
+        
+        .search-bar {
+            margin-bottom: 25px;
+        }
+        
+        .search-bar input {
+            width: 100%;
+            padding: 12px 20px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 16px;
+        }
+        
+        .search-bar input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .history-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        .history-table thead {
+            background: #f8f9fa;
+        }
+        
+        .history-table th {
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+            color: #495057;
+            border-bottom: 2px solid #dee2e6;
+        }
+        
+        .history-table td {
+            padding: 15px;
+            border-bottom: 1px solid #e9ecef;
+        }
+        
+        .history-table tbody tr:hover {
+            background: #f8f9fa;
+        }
+        
+        .note-title {
+            font-weight: 500;
+            color: #333;
+        }
+        
+        .operation-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+        
+        .operation-append {
+            background: #d4edda;
+            color: #155724;
+        }
+        
+        .operation-prepend {
+            background: #cce5ff;
+            color: #004085;
+        }
+        
+        .operation-replace {
+            background: #fff3cd;
+            color: #856404;
+        }
+        
+        .operation-insert_at_line {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        
+        .operation-replace_section {
+            background: #e2e3e5;
+            color: #383d41;
+        }
+        
+        .date-time {
+            color: #6c757d;
+            font-size: 14px;
+        }
+        
+        .actions {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .btn {
+            padding: 6px 14px;
+            font-size: 14px;
+            font-weight: 500;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+        
+        .btn-restore {
+            background: #667eea;
+            color: white;
+        }
+        
+        .btn-restore:hover {
+            background: #5a67d8;
+            transform: translateY(-1px);
+        }
+        
+        .btn-view {
+            background: #e9ecef;
+            color: #495057;
+        }
+        
+        .btn-view:hover {
+            background: #dee2e6;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #6c757d;
+        }
+        
+        .empty-state .icon {
+            font-size: 64px;
+            margin-bottom: 20px;
+            opacity: 0.5;
+        }
+        
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+        }
+        
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            padding: 15px 20px;
+            border-radius: 8px;
+            color: white;
+            font-weight: 500;
+            display: none;
+            animation: slideIn 0.3s ease;
+        }
+        
+        .toast.success {
+            background: #28a745;
+        }
+        
+        .toast.error {
+            background: #dc3545;
+        }
+        
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                border-radius: 0;
+            }
+            
+            body {
+                padding: 0;
+            }
+            
+            .history-table {
+                font-size: 14px;
+            }
+            
+            .actions {
+                flex-direction: column;
+            }
+            
+            .btn {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div>
+                <h1>📚 Change History</h1>
+                <p style="margin-top: 5px; opacity: 0.9;">All your Bear note backups in one place</p>
+            </div>
+            <div class="stats">
+                <div class="count">{{ total }}</div>
+                <div class="label">Total Backups</div>
+            </div>
+        </div>
+        
+        <div class="nav-links">
+            <a href="/">← Back to Home</a>
+        </div>
+        
+        <div class="content">
+            {% if changes %}
+            <div class="search-bar">
+                <input type="text" id="searchInput" placeholder="Search by note title..." onkeyup="filterTable()">
+            </div>
+            
+            <table class="history-table" id="historyTable">
+                <thead>
+                    <tr>
+                        <th>Date & Time</th>
+                        <th>Note</th>
+                        <th>Operation</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for change in changes %}
+                    <tr data-rollback-id="{{ change.rollback_id }}">
+                        <td class="date-time">
+                            {{ change.applied_at }}
+                        </td>
+                        <td class="note-title">
+                            {{ change.note_title }}
+                        </td>
+                        <td>
+                            <span class="operation-badge operation-{{ change.operation }}">
+                                {{ change.operation.replace('_', ' ') }}
+                            </span>
+                            {% if change.target %}
+                            <br><small style="color: #6c757d;">Target: {{ change.target }}</small>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <div class="actions">
+                                <button class="btn btn-restore" onclick="restoreBackup('{{ change.rollback_id }}')">
+                                    ↩️ Restore
+                                </button>
+                                <a href="/preview/{{ change.preview_id }}" class="btn btn-view" target="_blank">
+                                    👁 View
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+            <div class="empty-state">
+                <div class="icon">📭</div>
+                <h2>No Backups Yet</h2>
+                <p>Backups will appear here when you apply changes to your Bear notes.</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+    
+    <div id="loading" class="loading">
+        <div class="spinner"></div>
+    </div>
+    
+    <div id="toast" class="toast"></div>
+    
+    <script>
+        function filterTable() {
+            const input = document.getElementById('searchInput');
+            const filter = input.value.toLowerCase();
+            const table = document.getElementById('historyTable');
+            const rows = table.getElementsByTagName('tr');
+            
+            for (let i = 1; i < rows.length; i++) {
+                const titleCell = rows[i].getElementsByClassName('note-title')[0];
+                if (titleCell) {
+                    const text = titleCell.textContent || titleCell.innerText;
+                    if (text.toLowerCase().includes(filter)) {
+                        rows[i].style.display = '';
+                    } else {
+                        rows[i].style.display = 'none';
+                    }
+                }
+            }
+        }
+        
+        function showToast(message, type) {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.className = `toast ${type}`;
+            toast.style.display = 'block';
+            
+            setTimeout(() => {
+                toast.style.display = 'none';
+            }, 3000);
+        }
+        
+        async function restoreBackup(rollbackId) {
+            if (!confirm('Are you sure you want to restore this backup? This will replace the current note content.')) {
+                return;
+            }
+            
+            document.getElementById('loading').style.display = 'block';
+            
+            try {
+                const response = await fetch(`/api/restore/${rollbackId}`, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'}
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    showToast('✅ Note restored successfully!', 'success');
+                    // Optionally reload the page to update the list
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 1500);
+                } else {
+                    showToast('❌ ' + (data.detail || 'Failed to restore'), 'error');
+                }
+            } catch (error) {
+                showToast('❌ Error: ' + error.message, 'error');
+            } finally {
+                document.getElementById('loading').style.display = 'none';
+            }
+        }
+        
+        // Format dates nicely
+        document.addEventListener('DOMContentLoaded', () => {
+            const dateCells = document.querySelectorAll('.date-time');
+            dateCells.forEach(cell => {
+                const date = new Date(cell.textContent.trim());
+                if (!isNaN(date)) {
+                    const options = {
+                        year: 'numeric',
+                        month: 'short',
+                        day: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit'
+                    };
+                    cell.textContent = date.toLocaleDateString('en-US', options);
+                }
+            });
+        });
+    </script>
+</body>
+</html>
