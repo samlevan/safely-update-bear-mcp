@@ -154,7 +154,15 @@ class BearMCPServer:
         elif operation == "prepend":
             new_content = content + "\n" + original_content
         elif operation == "replace":
-            new_content = content
+            if target:
+                # Replace specific text when target is provided
+                if target in original_content:
+                    new_content = original_content.replace(target, content)
+                else:
+                    raise ValueError(f"Target text '{target}' not found in note")
+            else:
+                # Replace entire content when no target
+                new_content = content
         elif operation == "insert_at_line" and target:
             try:
                 line_num = int(target)
