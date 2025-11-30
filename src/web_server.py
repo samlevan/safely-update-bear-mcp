@@ -342,6 +342,20 @@ class WebServer:
     async def start(self):
         """Start the web server."""
         try:
+            import sys
+            import socket
+            
+            # Check if port is already in use (another MCP instance may have it)
+            sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            try:
+                sock.bind(('0.0.0.0', self.port))
+                sock.close()
+            except OSError:
+                print(f"Port {self.port} already in use - web server disabled for this instance (another MCP instance likely has it)", file=sys.stderr, flush=True)
+                self.server = None
+                return  # Exit gracefully - preview URLs will still work via the other instance
+            
+            print(f"Web server starting on port {self.port}...", file=sys.stderr, flush=True)
             # Configure uvicorn to be quiet - no logs to stdout
             # Only critical errors will be logged
             config = uvicorn.Config(
@@ -355,8 +369,11 @@ class WebServer:
                 date_header=False  # Don't send date header
             )
             self.server = uvicorn.Server(config)
+            print("Web server configured, calling serve()...", file=sys.stderr, flush=True)
             await self.server.serve()
         except Exception as e:
+            import sys
+            print(f"Web server error: {e}", file=sys.stderr, flush=True)
             logger.error(f"Web server error: {e}", exc_info=True)
             raise
     
